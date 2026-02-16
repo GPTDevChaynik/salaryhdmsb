@@ -21,7 +21,7 @@ body {
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 { text-align: center; }
+h2 { text-align:center; }
 
 label { display:block; margin-top:15px; }
 
@@ -103,7 +103,6 @@ button:hover { background:#1b5e20; }
 
 <script>
 const normHours = 165;
-const fixedFull = 11860;
 
 const zones = {
     1: 33320,
@@ -123,28 +122,27 @@ function calc() {
     const totalHours = h1 + h2;
     if (totalHours <= 0) return;
 
-    let base = zones[zone];
-    let bonus = 0;
+    const base = zones[zone];
 
-    if (level === 2 && zone <= 3) bonus = 2420;
+    // Ставка часа БЕЗ бонуса
+    const hourRate = base / normHours;
+
+    // Выплаты за часы
+    const pay15 = hourRate * h1;
+    const pay30 = hourRate * h2;
+
+    // Бонус уровня (пропорционально)
+    let fullBonus = 0;
+
+    if (level === 2 && zone <= 3) fullBonus = 2420;
     if (level === 3 && zone <= 2) {
-        bonus = 4840;
-        if (zone === 1) bonus += 2420;
+        fullBonus = 4840;
+        if (zone === 1) fullBonus += 2420;
     }
 
-    // Общая ЗП
-    const totalSalary = (base + bonus) / normHours * totalHours;
+    const pay07 = fullBonus / normHours * totalHours;
 
-    // Фикс пропорционально
-    const fixedPart = fixedFull / normHours * totalHours;
-
-    // Переменная
-    const variablePart = totalSalary - fixedPart;
-
-    // Выплаты
-    const pay15 = fixedPart / 2;
-    const pay30 = fixedPart / 2;
-    const pay07 = variablePart;
+    const totalSalary = pay15 + pay30 + pay07;
 
     document.getElementById("result").innerHTML = `
         <table class="result-table">
@@ -161,7 +159,7 @@ function calc() {
                 <td>${pay30.toFixed(2)} грн</td>
             </tr>
             <tr>
-                <td>07 числа (премія):</td>
+                <td>07 числа (премія рівня):</td>
                 <td>${pay07.toFixed(2)} грн</td>
             </tr>
             <tr class="total-row">
