@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Калькулятор ЗП</title>
+<title>Калькулятор зарплати</title>
 
 <style>
 body {
@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 400px;
+    max-width: 500px;
     margin: auto;
     background: white;
     padding: 25px;
@@ -21,14 +21,9 @@ body {
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 {
-    text-align: center;
-}
+h2 { text-align: center; }
 
-label {
-    display: block;
-    margin-top: 15px;
-}
+label { display: block; margin-top: 15px; }
 
 select, input {
     width: 100%;
@@ -47,15 +42,12 @@ button {
     font-size: 16px;
 }
 
-button:hover {
-    background: #1b5e20;
-}
+button:hover { background: #1b5e20; }
 
 .result {
     margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
+    font-size: 15px;
+    white-space: pre-line;
 }
 </style>
 </head>
@@ -65,13 +57,20 @@ button:hover {
 <div class="container">
     <h2>Калькулятор зарплати</h2>
 
-    <label>Оберіть зону:</label>
+    <label>Зона рейтингу:</label>
     <select id="zone">
-        <option value="33320">1 зона — 33 320 грн</option>
-        <option value="30890">2 зона — 30 890 грн</option>
-        <option value="28480">3 зона — 28 480 грн</option>
-        <option value="26060">4 зона — 26 060 грн</option>
-        <option value="23640">5 зона — 23 640 грн</option>
+        <option value="1">1 зона</option>
+        <option value="2">2 зона</option>
+        <option value="3">3 зона</option>
+        <option value="4">4 зона</option>
+        <option value="5">5 зона</option>
+    </select>
+
+    <label>Кваліфікаційний рівень:</label>
+    <select id="level">
+        <option value="1">1 рівень</option>
+        <option value="2">2 рівень</option>
+        <option value="3">3 рівень</option>
     </select>
 
     <label>Відпрацьовано годин:</label>
@@ -85,8 +84,17 @@ button:hover {
 <script>
 const normHours = 165;
 
+const zoneSalaries = {
+    1: 33320,
+    2: 30890,
+    3: 28480,
+    4: 26060,
+    5: 23640
+};
+
 function calculateSalary() {
-    const zoneSalary = parseFloat(document.getElementById("zone").value);
+    const zone = parseInt(document.getElementById("zone").value);
+    const level = parseInt(document.getElementById("level").value);
     const workedHours = parseFloat(document.getElementById("hours").value);
 
     if (!workedHours || workedHours <= 0) {
@@ -94,11 +102,36 @@ function calculateSalary() {
         return;
     }
 
-    const hourRate = zoneSalary / normHours;
-    const finalSalary = hourRate * workedHours;
+    let baseSalary = zoneSalaries[zone];
+    let bonus = 0;
+    let bonusText = "";
+
+    // Бонус 2 рівня
+    if (level === 2 && zone <= 3) {
+        bonus = 2420;
+        bonusText = "Бонус 2 рівня: +2 420 грн\n";
+    }
+
+    // Бонус 3 рівня
+    if (level === 3 && zone <= 2) {
+        bonus = 4840;
+        bonusText = "Бонус 3 рівня: +4 840 грн\n";
+
+        if (zone === 1) {
+            bonus += 2420;
+            bonusText += "Додатковий бонус за 1 зону: +2 420 грн\n";
+        }
+    }
+
+    const hourRate = baseSalary / normHours;
+    const salaryForHours = hourRate * workedHours;
+    const finalSalary = salaryForHours + bonus;
 
     document.getElementById("result").innerText =
-        "Зарплата: " + finalSalary.toFixed(2) + " грн";
+        "База за години: " + salaryForHours.toFixed(2) + " грн\n" +
+        bonusText +
+        "-------------------------\n" +
+        "ЗАГАЛЬНА ЗП: " + finalSalary.toFixed(2) + " грн";
 }
 </script>
 
