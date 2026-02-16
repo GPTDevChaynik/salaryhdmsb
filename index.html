@@ -73,8 +73,11 @@ button:hover { background: #1b5e20; }
         <option value="3">3 рівень</option>
     </select>
 
-    <label>Відпрацьовано годин:</label>
-    <input type="number" id="hours" placeholder="Введіть години">
+    <label>Години (1–15 число):</label>
+    <input type="number" id="hours1" placeholder="Наприклад 77">
+
+    <label>Години (16–31 число):</label>
+    <input type="number" id="hours2" placeholder="Наприклад 55">
 
     <button onclick="calculateSalary()">Розрахувати</button>
 
@@ -84,7 +87,6 @@ button:hover { background: #1b5e20; }
 <script>
 const normHours = 165;
 
-// Общая ЗП по зонам
 const zoneSalaries = {
     1: 33320,
     2: 30890,
@@ -93,59 +95,50 @@ const zoneSalaries = {
     5: 23640
 };
 
-// Фиксированная часть (одинаковая)
-const fixedTotal = 11860; // 5930 + 5930
-
 function calculateSalary() {
+
     const zone = parseInt(document.getElementById("zone").value);
     const level = parseInt(document.getElementById("level").value);
-    const workedHours = parseFloat(document.getElementById("hours").value);
+    const hours1 = parseFloat(document.getElementById("hours1").value) || 0;
+    const hours2 = parseFloat(document.getElementById("hours2").value) || 0;
 
-    if (!workedHours || workedHours <= 0) {
-        document.getElementById("result").innerText = "Введіть коректні години";
+    const totalHours = hours1 + hours2;
+
+    if (totalHours <= 0) {
+        document.getElementById("result").innerText = "Введіть години";
         return;
     }
 
     let baseSalary = zoneSalaries[zone];
     let bonus = 0;
-    let bonusText = "";
 
-    // Бонусы
+    // Бонус 2 рівня
     if (level === 2 && zone <= 3) {
         bonus = 2420;
-        bonusText = "Бонус 2 рівня: +2 420 грн\n";
     }
 
+    // Бонус 3 рівня
     if (level === 3 && zone <= 2) {
         bonus = 4840;
-        bonusText = "Бонус 3 рівня: +4 840 грн\n";
-
         if (zone === 1) {
             bonus += 2420;
-            bonusText += "Додатковий бонус за 1 зону: +2 420 грн\n";
         }
     }
 
-    // Пропорция по часам
-    const hourRate = baseSalary / normHours;
-    const proportionalBase = hourRate * workedHours;
+    const hourRate = (baseSalary + bonus) / normHours;
 
-    const proportionalFixed = (fixedTotal / normHours) * workedHours;
-    const proportionalVariable = proportionalBase - proportionalFixed;
+    const pay15 = hourRate * hours1;
+    const pay30 = hourRate * hours2;
+    const pay07 = 0; // уже включено пропорційно
 
-    const payout15 = proportionalFixed / 2;
-    const payout31 = proportionalFixed / 2;
-    const payout07 = proportionalVariable + bonus;
-
-    const finalSalary = proportionalBase + bonus;
+    const totalSalary = hourRate * totalHours;
 
     document.getElementById("result").innerText =
-        "ЗАГАЛЬНА ЗП: " + finalSalary.toFixed(2) + " грн\n\n" +
-        bonusText +
-        "Виплати:\n" +
-        "15 числа: " + payout15.toFixed(2) + " грн\n" +
-        "31 числа: " + payout31.toFixed(2) + " грн\n" +
-        "07 числа: " + payout07.toFixed(2) + " грн";
+        "Відпрацьовано годин: " + totalHours + "\n\n" +
+        "15 числа: " + pay15.toFixed(2) + " грн\n" +
+        "30 числа: " + pay30.toFixed(2) + " грн\n" +
+        "07 числа: премія врахована пропорційно\n\n" +
+        "ЗАГАЛЬНА ЗП: " + totalSalary.toFixed(2) + " грн";
 }
 </script>
 
