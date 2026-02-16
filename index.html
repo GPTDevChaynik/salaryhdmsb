@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 500px;
+    max-width: 550px;
     margin: auto;
     background: white;
     padding: 25px;
@@ -84,6 +84,7 @@ button:hover { background: #1b5e20; }
 <script>
 const normHours = 165;
 
+// Общая ЗП по зонам
 const zoneSalaries = {
     1: 33320,
     2: 30890,
@@ -91,6 +92,9 @@ const zoneSalaries = {
     4: 26060,
     5: 23640
 };
+
+// Фиксированная часть (одинаковая)
+const fixedTotal = 11860; // 5930 + 5930
 
 function calculateSalary() {
     const zone = parseInt(document.getElementById("zone").value);
@@ -106,13 +110,12 @@ function calculateSalary() {
     let bonus = 0;
     let bonusText = "";
 
-    // Бонус 2 рівня
+    // Бонусы
     if (level === 2 && zone <= 3) {
         bonus = 2420;
         bonusText = "Бонус 2 рівня: +2 420 грн\n";
     }
 
-    // Бонус 3 рівня
     if (level === 3 && zone <= 2) {
         bonus = 4840;
         bonusText = "Бонус 3 рівня: +4 840 грн\n";
@@ -123,15 +126,26 @@ function calculateSalary() {
         }
     }
 
+    // Пропорция по часам
     const hourRate = baseSalary / normHours;
-    const salaryForHours = hourRate * workedHours;
-    const finalSalary = salaryForHours + bonus;
+    const proportionalBase = hourRate * workedHours;
+
+    const proportionalFixed = (fixedTotal / normHours) * workedHours;
+    const proportionalVariable = proportionalBase - proportionalFixed;
+
+    const payout15 = proportionalFixed / 2;
+    const payout31 = proportionalFixed / 2;
+    const payout07 = proportionalVariable + bonus;
+
+    const finalSalary = proportionalBase + bonus;
 
     document.getElementById("result").innerText =
-        "База за години: " + salaryForHours.toFixed(2) + " грн\n" +
+        "ЗАГАЛЬНА ЗП: " + finalSalary.toFixed(2) + " грн\n\n" +
         bonusText +
-        "-------------------------\n" +
-        "ЗАГАЛЬНА ЗП: " + finalSalary.toFixed(2) + " грн";
+        "Виплати:\n" +
+        "15 числа: " + payout15.toFixed(2) + " грн\n" +
+        "31 числа: " + payout31.toFixed(2) + " грн\n" +
+        "07 числа: " + payout07.toFixed(2) + " грн";
 }
 </script>
 
