@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Калькулятор зарплати</title>
+<title>Калькулятор загальної ЗП</title>
 
 <style>
 body {
@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 500px;
     margin: auto;
     background: white;
     padding: 30px;
@@ -21,9 +21,15 @@ body {
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 { text-align:center; }
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
 
-label { display:block; margin-top:15px; }
+label {
+    display:block;
+    margin-top:15px;
+}
 
 select, input {
     width:100%;
@@ -40,31 +46,18 @@ button {
     border:none;
     cursor:pointer;
     border-radius:6px;
+    font-size:16px;
 }
 
-button:hover { background:#1b5e20; }
+button:hover {
+    background:#1b5e20;
+}
 
-.result-table {
-    width:100%;
+.result {
     margin-top:25px;
-    border-collapse:collapse;
-}
-
-.result-table td {
-    padding:6px 0;
-}
-
-.result-table td:first-child {
-    text-align:left;
-}
-
-.result-table td:last-child {
-    text-align:right;
+    font-size:18px;
     font-weight:bold;
-}
-
-.total-row {
-    border-top:2px solid #ccc;
+    text-align:center;
 }
 </style>
 </head>
@@ -72,7 +65,7 @@ button:hover { background:#1b5e20; }
 <body>
 
 <div class="container">
-    <h2>Калькулятор зарплати</h2>
+    <h2>Розрахунок загальної ЗП</h2>
 
     <label>Зона рейтингу:</label>
     <select id="zone">
@@ -90,15 +83,12 @@ button:hover { background:#1b5e20; }
         <option value="3">3 рівень</option>
     </select>
 
-    <label>Години (1–15):</label>
-    <input type="number" id="hours1">
+    <label>Відпрацьовано годин:</label>
+    <input type="number" id="hours" placeholder="Наприклад 132">
 
-    <label>Години (16–31):</label>
-    <input type="number" id="hours2">
+    <button onclick="calculate()">Розрахувати</button>
 
-    <button onclick="calc()">Розрахувати</button>
-
-    <div id="result"></div>
+    <div class="result" id="result"></div>
 </div>
 
 <script>
@@ -112,51 +102,37 @@ const zones = {
     5: 23640
 };
 
-// Коэффициент аванса (выведен из твоих данных)
-const advanceCoef = 0.742; 
-
-function calc() {
+function calculate() {
 
     const zone = +document.getElementById("zone").value;
     const level = +document.getElementById("level").value;
-    const h1 = +document.getElementById("hours1").value || 0;
-    const h2 = +document.getElementById("hours2").value || 0;
+    const hours = +document.getElementById("hours").value;
 
-    const totalHours = h1 + h2;
-    if (totalHours <= 0) return;
-
-    const base = zones[zone];
-    const hourRate = base / normHours;
-
-    // Полная начисленная сумма
-    let fullBonus = 0;
-    if (level === 2 && zone <= 3) fullBonus = 2420;
-    if (level === 3 && zone <= 2) {
-        fullBonus = 4840;
-        if (zone === 1) fullBonus += 2420;
+    if (!hours || hours <= 0) {
+        document.getElementById("result").innerText = "Введіть коректні години";
+        return;
     }
 
-    const totalSalary = (base + fullBonus) / normHours * totalHours;
+    let base = zones[zone];
+    let bonus = 0;
 
-    // Авансы (15 и 30)
-    const pay15 = hourRate * h1 * advanceCoef;
-    const pay30 = hourRate * h2 * advanceCoef;
+    // Бонус 2 рівня
+    if (level === 2 && zone <= 3) {
+        bonus = 2420;
+    }
 
-    // 7 число — остаток
-    const pay07 = totalSalary - pay15 - pay30;
+    // Бонус 3 рівня
+    if (level === 3 && zone <= 2) {
+        bonus = 4840;
+        if (zone === 1) bonus += 2420;
+    }
 
-    document.getElementById("result").innerHTML = `
-        <table class="result-table">
-            <tr><td>Відпрацьовано годин:</td><td>${totalHours}</td></tr>
-            <tr><td>15 числа:</td><td>${pay15.toFixed(2)} грн</td></tr>
-            <tr><td>30 числа:</td><td>${pay30.toFixed(2)} грн</td></tr>
-            <tr><td>07 числа (премія):</td><td>${pay07.toFixed(2)} грн</td></tr>
-            <tr class="total-row"><td>ЗАГАЛЬНА ЗП:</td><td>${totalSalary.toFixed(2)} грн</td></tr>
-        </table>
-    `;
+    const totalSalary = (base + bonus) / normHours * hours;
+
+    document.getElementById("result").innerText =
+        "ЗАГАЛЬНА НАРАХОВАНА ЗП: " + totalSalary.toFixed(2) + " грн";
 }
 </script>
-
 
 </body>
 </html>
