@@ -13,17 +13,23 @@ body {
 }
 
 .container {
-    max-width: 550px;
+    max-width: 600px;
     margin: auto;
     background: white;
-    padding: 25px;
-    border-radius: 10px;
+    padding: 30px;
+    border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 { text-align: center; }
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
 
-label { display: block; margin-top: 15px; }
+label {
+    display: block;
+    margin-top: 15px;
+}
 
 select, input {
     width: 100%;
@@ -33,21 +39,46 @@ select, input {
 
 button {
     width: 100%;
-    margin-top: 20px;
-    padding: 10px;
+    margin-top: 25px;
+    padding: 12px;
     background: #2e7d32;
     color: white;
     border: none;
     cursor: pointer;
     font-size: 16px;
+    border-radius: 6px;
 }
 
-button:hover { background: #1b5e20; }
+button:hover {
+    background: #1b5e20;
+}
 
 .result {
-    margin-top: 20px;
-    font-size: 15px;
-    white-space: pre-line;
+    margin-top: 25px;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.result-table td {
+    padding: 8px 0;
+}
+
+.result-table td:first-child {
+    text-align: left;
+}
+
+.result-table td:last-child {
+    text-align: right;
+    font-weight: bold;
+}
+
+.total-row {
+    border-top: 2px solid #ccc;
+    padding-top: 10px;
 }
 </style>
 </head>
@@ -74,10 +105,10 @@ button:hover { background: #1b5e20; }
     </select>
 
     <label>Години (1–15 число):</label>
-    <input type="number" id="hours1" placeholder="Наприклад 77">
+    <input type="number" id="hours1">
 
     <label>Години (16–31 число):</label>
-    <input type="number" id="hours2" placeholder="Наприклад 55">
+    <input type="number" id="hours2">
 
     <button onclick="calculateSalary()">Розрахувати</button>
 
@@ -105,19 +136,17 @@ function calculateSalary() {
     const totalHours = hours1 + hours2;
 
     if (totalHours <= 0) {
-        document.getElementById("result").innerText = "Введіть години";
+        document.getElementById("result").innerHTML = "Введіть години";
         return;
     }
 
     let baseSalary = zoneSalaries[zone];
     let bonus = 0;
 
-    // Бонус 2 рівня
     if (level === 2 && zone <= 3) {
         bonus = 2420;
     }
 
-    // Бонус 3 рівня
     if (level === 3 && zone <= 2) {
         bonus = 4840;
         if (zone === 1) {
@@ -125,20 +154,38 @@ function calculateSalary() {
         }
     }
 
-    const hourRate = (baseSalary + bonus) / normHours;
+    const hourRate = baseSalary / normHours;
 
     const pay15 = hourRate * hours1;
     const pay30 = hourRate * hours2;
-    const pay07 = 0; // уже включено пропорційно
+    const pay07 = (bonus / normHours) * totalHours;
 
-    const totalSalary = hourRate * totalHours;
+    const totalSalary = (hourRate * totalHours) + pay07;
 
-    document.getElementById("result").innerText =
-        "Відпрацьовано годин: " + totalHours + "\n\n" +
-        "15 числа: " + pay15.toFixed(2) + " грн\n" +
-        "30 числа: " + pay30.toFixed(2) + " грн\n" +
-        "07 числа: премія врахована пропорційно\n\n" +
-        "ЗАГАЛЬНА ЗП: " + totalSalary.toFixed(2) + " грн";
+    document.getElementById("result").innerHTML = `
+        <table class="result-table">
+            <tr>
+                <td>Відпрацьовано годин:</td>
+                <td>${totalHours}</td>
+            </tr>
+            <tr>
+                <td>15 числа:</td>
+                <td>${pay15.toFixed(2)} грн</td>
+            </tr>
+            <tr>
+                <td>30 числа:</td>
+                <td>${pay30.toFixed(2)} грн</td>
+            </tr>
+            <tr>
+                <td>07 числа (премія):</td>
+                <td>${pay07.toFixed(2)} грн</td>
+            </tr>
+            <tr class="total-row">
+                <td>ЗАГАЛЬНА ЗП:</td>
+                <td>${totalSalary.toFixed(2)} грн</td>
+            </tr>
+        </table>
+    `;
 }
 </script>
 
