@@ -21,64 +21,50 @@ body {
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-h2 {
-    text-align: center;
-    margin-bottom: 25px;
-}
+h2 { text-align: center; }
 
-label {
-    display: block;
-    margin-top: 15px;
-}
+label { display:block; margin-top:15px; }
 
 select, input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
+    width:100%;
+    padding:8px;
+    margin-top:5px;
 }
 
 button {
-    width: 100%;
-    margin-top: 25px;
-    padding: 12px;
-    background: #2e7d32;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 6px;
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    background:#2e7d32;
+    color:white;
+    border:none;
+    cursor:pointer;
+    border-radius:6px;
 }
 
-button:hover {
-    background: #1b5e20;
-}
-
-.result {
-    margin-top: 25px;
-}
+button:hover { background:#1b5e20; }
 
 .result-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+    width:100%;
+    margin-top:25px;
+    border-collapse:collapse;
 }
 
 .result-table td {
-    padding: 8px 0;
+    padding:6px 0;
 }
 
 .result-table td:first-child {
-    text-align: left;
+    text-align:left;
 }
 
 .result-table td:last-child {
-    text-align: right;
-    font-weight: bold;
+    text-align:right;
+    font-weight:bold;
 }
 
 .total-row {
-    border-top: 2px solid #ccc;
-    padding-top: 10px;
+    border-top:2px solid #ccc;
 }
 </style>
 </head>
@@ -104,21 +90,22 @@ button:hover {
         <option value="3">3 рівень</option>
     </select>
 
-    <label>Години (1–15 число):</label>
+    <label>Години (1–15):</label>
     <input type="number" id="hours1">
 
-    <label>Години (16–31 число):</label>
+    <label>Години (16–31):</label>
     <input type="number" id="hours2">
 
-    <button onclick="calculateSalary()">Розрахувати</button>
+    <button onclick="calc()">Розрахувати</button>
 
-    <div class="result" id="result"></div>
+    <div id="result"></div>
 </div>
 
 <script>
 const normHours = 165;
+const fixedFull = 11860;
 
-const zoneSalaries = {
+const zones = {
     1: 33320,
     2: 30890,
     3: 28480,
@@ -126,41 +113,38 @@ const zoneSalaries = {
     5: 23640
 };
 
-function calculateSalary() {
+function calc() {
 
-    const zone = parseInt(document.getElementById("zone").value);
-    const level = parseInt(document.getElementById("level").value);
-    const hours1 = parseFloat(document.getElementById("hours1").value) || 0;
-    const hours2 = parseFloat(document.getElementById("hours2").value) || 0;
+    const zone = +document.getElementById("zone").value;
+    const level = +document.getElementById("level").value;
+    const h1 = +document.getElementById("hours1").value || 0;
+    const h2 = +document.getElementById("hours2").value || 0;
 
-    const totalHours = hours1 + hours2;
+    const totalHours = h1 + h2;
+    if (totalHours <= 0) return;
 
-    if (totalHours <= 0) {
-        document.getElementById("result").innerHTML = "Введіть години";
-        return;
-    }
-
-    let baseSalary = zoneSalaries[zone];
+    let base = zones[zone];
     let bonus = 0;
 
-    if (level === 2 && zone <= 3) {
-        bonus = 2420;
-    }
-
+    if (level === 2 && zone <= 3) bonus = 2420;
     if (level === 3 && zone <= 2) {
         bonus = 4840;
-        if (zone === 1) {
-            bonus += 2420;
-        }
+        if (zone === 1) bonus += 2420;
     }
 
-    const hourRate = baseSalary / normHours;
+    // Общая ЗП
+    const totalSalary = (base + bonus) / normHours * totalHours;
 
-    const pay15 = hourRate * hours1;
-    const pay30 = hourRate * hours2;
-    const pay07 = (bonus / normHours) * totalHours;
+    // Фикс пропорционально
+    const fixedPart = fixedFull / normHours * totalHours;
 
-    const totalSalary = (hourRate * totalHours) + pay07;
+    // Переменная
+    const variablePart = totalSalary - fixedPart;
+
+    // Выплаты
+    const pay15 = fixedPart / 2;
+    const pay30 = fixedPart / 2;
+    const pay07 = variablePart;
 
     document.getElementById("result").innerHTML = `
         <table class="result-table">
