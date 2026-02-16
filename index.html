@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор ЗП</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    padding: 40px;
+}
+
+.container {
+    max-width: 400px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+}
+
+select, input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #1b5e20;
+}
+
+.result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Калькулятор зарплати</h2>
+
+    <label>Оберіть зону:</label>
+    <select id="zone">
+        <option value="33320">1 зона — 33 320 грн</option>
+        <option value="30890">2 зона — 30 890 грн</option>
+        <option value="28480">3 зона — 28 480 грн</option>
+        <option value="26060">4 зона — 26 060 грн</option>
+        <option value="23640">5 зона — 23 640 грн</option>
+    </select>
+
+    <label>Відпрацьовано годин:</label>
+    <input type="number" id="hours" placeholder="Введіть години">
+
+    <button onclick="calculateSalary()">Розрахувати</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+const normHours = 165;
+
+function calculateSalary() {
+    const zoneSalary = parseFloat(document.getElementById("zone").value);
+    const workedHours = parseFloat(document.getElementById("hours").value);
+
+    if (!workedHours || workedHours <= 0) {
+        document.getElementById("result").innerText = "Введіть коректні години";
+        return;
+    }
+
+    const hourRate = zoneSalary / normHours;
+    const finalSalary = hourRate * workedHours;
+
+    document.getElementById("result").innerText =
+        "Зарплата: " + finalSalary.toFixed(2) + " грн";
+}
+</script>
+
+</body>
+</html>
