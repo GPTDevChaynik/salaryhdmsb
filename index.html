@@ -112,6 +112,9 @@ const zones = {
     5: 23640
 };
 
+// Коэффициент аванса (выведен из твоих данных)
+const advanceCoef = 0.742; 
+
 function calc() {
 
     const zone = +document.getElementById("zone").value;
@@ -123,53 +126,37 @@ function calc() {
     if (totalHours <= 0) return;
 
     const base = zones[zone];
-
-    // Ставка часа БЕЗ бонуса
     const hourRate = base / normHours;
 
-    // Выплаты за часы
-    const pay15 = hourRate * h1;
-    const pay30 = hourRate * h2;
-
-    // Бонус уровня (пропорционально)
+    // Полная начисленная сумма
     let fullBonus = 0;
-
     if (level === 2 && zone <= 3) fullBonus = 2420;
     if (level === 3 && zone <= 2) {
         fullBonus = 4840;
         if (zone === 1) fullBonus += 2420;
     }
 
-    const pay07 = fullBonus / normHours * totalHours;
+    const totalSalary = (base + fullBonus) / normHours * totalHours;
 
-    const totalSalary = pay15 + pay30 + pay07;
+    // Авансы (15 и 30)
+    const pay15 = hourRate * h1 * advanceCoef;
+    const pay30 = hourRate * h2 * advanceCoef;
+
+    // 7 число — остаток
+    const pay07 = totalSalary - pay15 - pay30;
 
     document.getElementById("result").innerHTML = `
         <table class="result-table">
-            <tr>
-                <td>Відпрацьовано годин:</td>
-                <td>${totalHours}</td>
-            </tr>
-            <tr>
-                <td>15 числа:</td>
-                <td>${pay15.toFixed(2)} грн</td>
-            </tr>
-            <tr>
-                <td>30 числа:</td>
-                <td>${pay30.toFixed(2)} грн</td>
-            </tr>
-            <tr>
-                <td>07 числа (премія рівня):</td>
-                <td>${pay07.toFixed(2)} грн</td>
-            </tr>
-            <tr class="total-row">
-                <td>ЗАГАЛЬНА ЗП:</td>
-                <td>${totalSalary.toFixed(2)} грн</td>
-            </tr>
+            <tr><td>Відпрацьовано годин:</td><td>${totalHours}</td></tr>
+            <tr><td>15 числа:</td><td>${pay15.toFixed(2)} грн</td></tr>
+            <tr><td>30 числа:</td><td>${pay30.toFixed(2)} грн</td></tr>
+            <tr><td>07 числа (премія):</td><td>${pay07.toFixed(2)} грн</td></tr>
+            <tr class="total-row"><td>ЗАГАЛЬНА ЗП:</td><td>${totalSalary.toFixed(2)} грн</td></tr>
         </table>
     `;
 }
 </script>
+
 
 </body>
 </html>
